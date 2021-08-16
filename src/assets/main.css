@@ -96,7 +96,7 @@ body {
   background-position: 0 -300px;
   background-repeat: no-repeat;
   background-size: 100% 238px;
-  height: 450px;
+  height: 100vh;
   -ms-overflow-style: none;
   overflow-y: auto;
   overflow-x: hidden;
@@ -261,14 +261,6 @@ body {
 }
 /* END Contact info styles */
 
-
-.container {
-  max-width: 400px;
-  width: 100%;
-  margin: 0 auto;
-  position: relative;
-}
-
 #contact input[type="text"],
 #contact input[type="email"],
 #contact input[type="tel"],
@@ -323,6 +315,13 @@ fieldset {
   background: #FFF;
   margin: 0 0 5px;
   padding: 10px;
+}
+
+.small-inputs-container{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 #contact input[type="text"]:hover,

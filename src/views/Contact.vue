@@ -17,19 +17,24 @@
         <tbody>
           <tr id="contactUsername" class="contact-info-item">
             <td class="contact-info-icon"><i class="fa fa-comment"></i></td>
-            <td class="contact-info-detail">{{ contact.name }} {{ contact.last_name }}</td>
-          </tr>
-          <tr id="contactEmail" class="contact-info-item">
-            <td class="contact-info-icon"><i class="fa fa-envelope"></i></td>
-            <td class="contact-info-detail">{{ contact.email }}</td>
+            <td class="contact-info-detail">{{ contact.info[0].name }}
+              {{ contact.info[0].lastName  }}</td>
           </tr>
           <tr id="contactHomeNumber" class="contact-info-item">
             <td class="contact-info-icon"><i class="fa fa-phone"></i></td>
-            <td class="contact-info-detail">{{ contact.mobile_phone }}</td>
+            <td class="contact-info-detail">{{ contact.info[0].tel }}</td>
           </tr>
+            <template v-for="(field, index) in arr2" :key="index">
+           <tr id="contactEmail" class="contact-info-item">
+            <td class="contact-info-icon"><i class="fa fa-envelope"></i></td>
+            <td class="contact-info-detail">{{ arr2[index].propertyName }}:
+            {{ arr2[index].value }}</td>
+          </tr>
+          </template>
+          <!--
           <tr id="contactWorkNumber" class="contact-info-item">
             <td class="contact-info-icon"><i class="fa fa-building"></i></td>
-            <td class="contact-info-detail">{{ contact.home_phone }}</td>
+            <td class="contact-info-detail">{{ contact }}</td>
           </tr>
           <tr id="contactAddress" class="contact-info-item">
             <td class="contact-info-icon"><i class="fa fa-home"></i></td>
@@ -38,7 +43,7 @@
            <tr id="contactAddress" class="contact-info-item">
             <td class="contact-info-icon"><i class="fa fa-home"></i></td>
             <td class="contact-info-detail">{{ contact.name }}</td>
-          </tr>
+          </tr> -->
         </tbody>
       </table>
       <!-- End Contact Info (Details) -->
@@ -46,17 +51,18 @@
   </div>
 </template>
 <script>
-import { contactsCollection } from '@/includes/firebase';
+import { contactsCollectionD } from '@/includes/firebase';
 
 export default {
   name: 'Contact',
   data() {
     return {
       contact: {},
+      arr2: [],
     };
   },
   async created() {
-    const docSnapshot = await contactsCollection.doc(this.$route.params.id).get();
+    const docSnapshot = await contactsCollectionD.doc(this.$route.params.id).get();
     if (!docSnapshot.exists) {
       this.$router.push({
         name: 'home',
@@ -65,6 +71,14 @@ export default {
     }
     this.contact = docSnapshot.data();
     // this.getComments();
+    this.arr2 = this.contact.info.slice(1);
+    console.log(this.arr2);
+  },
+  methods: {
+    getArray(contact) {
+      const arr = contact.filter((item, index) => index > 1);
+      return arr;
+    },
   },
 };
 </script>

@@ -26,9 +26,13 @@
               <div data-image-color="#fcd0c4" style="background-color: rgb(252, 208, 196);"></div>
             </td>
             <td class="contact-name">
-              <span class="first-name">{{ contact.name }}</span>
-              <span
-                class="last-name">{{ contact.last_name }}</span></td>
+              <span class="first-name">{{ contact.info[0].name }}
+                {{ contact.info[0].lastName }}</span>
+            </td>
+            <!-- <td class="contact-name">
+              <span class="first-name">{{ contact.info[0].propertyName }}: </span>
+              <span class="first-name">{{ contact.info[0].value }}</span>
+                </td> -->
               </router-link>
           </tr>
         </tbody>
@@ -106,16 +110,17 @@
         </tbody> -->
       </table>
       <!-- END List of contacts -->
-<div class="container">
+<div>
   <form id="contact" :validation-schema="schema" v-on:submit.prevent="submit">
     <h3>Добавить контакт</h3>
       <div v-for="(input, index) in contactInfo"
          :key="`phoneInput-${index}`"
           class="input wrapper flex items-center"
         >
+        <div class="small-inputs-container">
     <input v-model="input.propertyName"
                type="text"
-               class="h-10 rounded-lg outline-none p-2"
+               class="input-field-small"
                placeholder=" Enter Phone Number"
           />
     <input v-model="input.value"
@@ -123,6 +128,7 @@
                class="h-10 rounded-lg outline-none p-2"
                placeholder=" Enter Phone Number"
           />
+          </div>
           <!--          Add Svg Icon-->
           <svg @click="addField(input, contactInfo)"
             xmlns="http://www.w3.org/2000/svg"
@@ -155,17 +161,18 @@
               13.414l-2.828 2.829-1.415-1.415L10.586 12 7.757 9.172l1.415-1.415L12 10.586z"
             />
           </svg>
-        </div>
+          </div>
+      <div v-for="(input, index) in contactStatic"
+         :key="index">
+        <input v-model="input.name" class="input-field" type="text" placeholder="Имя"/>
+        <input v-model="input.lastName" class="input-field" type="text" placeholder="Фамилия"/>
+        <input v-model="input.tel" class="input-field" type="tel"
+        name="mobile_phone" placeholder="Мобильный телефон"/>
+      </div>
       <button name="submit" type="submit">SUBMIT</button>
-      <!-- <vee-field class="input-field" type="text" name="name" placeholder="Имя"/>
-      <ErrorMessage class="text-red-600" name="name"/>
-      <vee-field class="input-field" type="text" name="last_name" placeholder="Фамилия"/>
-      <ErrorMessage class="text-red-600" name="last_name"/>
+      <!--
       <vee-field class="input-field" type="email"  name="email" placeholder="Email"/>
       <ErrorMessage class="text-red-600" name="email"/>
-      <vee-field class="input-field" type="tel"
-      name="mobile_phone" placeholder="Мобильный телефон"/>
-      <ErrorMessage class="text-red-600" name="mobile_phone"/>
       <vee-field class="input-field" type="tel" name="home_phone" placeholder="Домашний телефон"/>
       <ErrorMessage class="text-red-600" name="home_phone"/>
       <vee-field class="input-field" type="text" name="address" placeholder="Адрес"/>
@@ -204,6 +211,7 @@ export default {
         address: 'required',
       },
       contactInfo: [{ propertyName: '' }],
+      contactStatic: [{}],
     };
   },
   async created() {
@@ -211,14 +219,14 @@ export default {
   },
   methods: {
     async getContacts() {
-      const snapshot = await contactsCollection.get();
+      const snapshot = await contactsCollectionD.get();
       this.contacts = [];
       snapshot.forEach((doc) => [
         this.contacts.push({
           ...doc.data(),
           id: doc.id,
         }),
-        // console.log(this.contacts),
+        // console.log(this.contacts[0]),
       ]);
     },
     async addContact(values, { resetForm }) {
@@ -237,9 +245,12 @@ export default {
     },
     async submit(e) {
       e.preventDefault();
-      console.log(this.contactInfo);
+      // console.log(this.contactInfo);
+      // console.log(this.contactStatic);
+      const contactResult = [].concat(this.contactStatic, this.contactInfo);
+      console.log(contactResult);
       const contact = {
-        info: this.contactInfo,
+        info: contactResult,
       };
       await contactsCollectionD.add(contact);
       // resetForm();
