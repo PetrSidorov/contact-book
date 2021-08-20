@@ -2,7 +2,10 @@
   <div class="app-wrapper">
     <!-- Header for the 'app' -->
     <header class="app-bar">
-      <button id="menuToggle" class="app-bar-button menu-toggle menu-is-closed"><i
+      <button class="app-bar-button menu-toggle menu-is-closed cursor-pointer"
+      @click="this.$router.push({
+        name: 'home',
+      });" ><i
           class="fa fa-arrow-left"></i></button>
       <h1 id="appHeadline" class="app-headline">All Contacts</h1>
       <button id="sortToggle" class="app-bar-button sort-toggle"><i
@@ -10,40 +13,49 @@
     </header>
     <!-- END 'app' Header -->
     <!-- Table of contacts -->
-    <div class="app-body"
-      style="background-image: linear-gradient(rgb(230, 239, 134) 0%, rgb(255, 255, 255) 100%);
-      background-position: 0px 0px; overflow: hidden;">
+    <div class="app-body app-body-contact"
+    :style="{ backgroundImage: getColor}"
+    >
       <table id="contactInfo" class="contact-info visible">
         <tbody>
           <tr id="contactUsername" class="contact-info-item">
             <td class="contact-info-icon"><i class="fa fa-comment"></i></td>
-            <td class="contact-info-detail">{{ contact.info[0].name }}
-              {{ contact.info[0].lastName  }}</td>
+            <td class="contact-info-detail">
+              <p v-if="!isEditing">{{ contact.name }}
+              {{ contact.lastName  }}</p>
+              <template v-else>
+              <input v-model="contact.name" type="text"/>
+              <input v-model="contact.lastName" type="text"/>
+              </template>
+              </td>
           </tr>
           <tr id="contactHomeNumber" class="contact-info-item">
             <td class="contact-info-icon"><i class="fa fa-phone"></i></td>
-            <td class="contact-info-detail">{{ contact.info[0].tel }}</td>
+            <td class="contact-info-detail">
+              <p v-if="!isEditing">{{ contact.tel }}</p>
+              <input v-else v-model="contact.tel" type="text"/>
+              </td>
           </tr>
-            <template v-for="(field, index) in arr2" :key="index">
+            <template v-for="(field, i) in dynamicFields" :key="i">
            <tr id="contactEmail" class="contact-info-item">
             <td class="contact-info-icon"><i class="fa fa-envelope"></i></td>
-            <td class="contact-info-detail">{{ arr2[index].propertyName }}:
-            {{ arr2[index].value }}</td>
+            <td class="contact-info-detail">
+              <p v-if="!isEditing">{{ dynamicFields[i].propertyName }}:
+            {{ dynamicFields[i].value }}</p>
+            <template v-else>
+              <input v-model="dynamicFields[i].propertyName" type="text"/>
+              <input v-model="dynamicFields[i].value" type="text"/>
+            </template>
+            </td>
           </tr>
           </template>
-          <!--
-          <tr id="contactWorkNumber" class="contact-info-item">
-            <td class="contact-info-icon"><i class="fa fa-building"></i></td>
-            <td class="contact-info-detail">{{ contact }}</td>
+           <tr @click="edit"  id="edit" class="contact-info-item">
+            <td class="contact-info-icon"><i class="fas fa-edit"></i></td>
+            <td class="contact-info-detail cursor-pointer">
+              <p v-if="!isEditing">Edit contact</p>
+              <p @click="submitChanges" v-else>Save changes</p>
+              </td>
           </tr>
-          <tr id="contactAddress" class="contact-info-item">
-            <td class="contact-info-icon"><i class="fa fa-home"></i></td>
-            <td class="contact-info-detail">{{ contact.address }}</td>
-          </tr>
-           <tr id="contactAddress" class="contact-info-item">
-            <td class="contact-info-icon"><i class="fa fa-home"></i></td>
-            <td class="contact-info-detail">{{ contact.name }}</td>
-          </tr> -->
         </tbody>
       </table>
       <!-- End Contact Info (Details) -->
@@ -58,8 +70,14 @@ export default {
   data() {
     return {
       contact: {},
-      arr2: [],
+      dynamicFields: [],
+      isEditing: false,
     };
+  },
+  computed: {
+    getColor() {
+      return `linear-gradient(${this.contact.color} 0%, rgb(255, 255, 255) 100%)`;
+    },
   },
   async created() {
     const docSnapshot = await contactsCollectionD.doc(this.$route.params.id).get();
@@ -70,14 +88,15 @@ export default {
       return;
     }
     this.contact = docSnapshot.data();
-    // this.getComments();
-    this.arr2 = this.contact.info.slice(1);
-    console.log(this.arr2);
+    this.dynamicFields = this.contact.dynamicFields;
   },
   methods: {
-    getArray(contact) {
-      const arr = contact.filter((item, index) => index > 1);
-      return arr;
+    edit() {
+      this.isEditing = !this.isEditing;
+    },
+    async submitChanges() {
+      const docRef = await contactsCollectionD.doc(this.$route.params.id);
+      docRef.update(this.contact);
     },
   },
 };
