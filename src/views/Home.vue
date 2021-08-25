@@ -18,11 +18,9 @@
     <div class="app-body"
     style="background-image: linear-gradient(rgb(252, 208, 196) 0%, rgb(255, 255, 255) 100%);
     overflow: auto;">
-      <!-- List of contacts, these are built dynamicly by javascript on page load -->
+
       <table id="contactList" class="contact-list">
         <tbody>
-          <!-- <contact-item v-for="contact in contacts"
-          :key="contact" :contact="contact"/> -->
           <tr class="contact" v-for="contact in contacts"
           :key="contact">
           <router-link :to="{ name: 'contact', params: { id: contact.id } }">
@@ -38,13 +36,23 @@
         </tbody>
       </table>
       <!-- END List of contacts -->
-  <form v-show="showForm" id="contact" :validation-schema="schema">
+  <form
+  v-show="showForm"
+  id="contact"
+  :validation-schema="schema"
+  novalidate="true">
     <div class="form-in">
     <h3 class="center-text">Добавить контакт</h3>
       <div v-for="(input, index) in contactInfo"
          :key="`phoneInput-${index}`"
           class="input-button-row"
         >
+         <p v-if="errors.length">
+            <b>Please correct the following error(s):</b>
+            <ul>
+              <li v-for="error in errors" :key="error">{{ error }}</li>
+            </ul>
+        </p>
         <div class="small-inputs-container">
     <input v-model="input.propertyName"
                type="text"
@@ -60,7 +68,7 @@
           />
           </div>
           <div class="button-wrapper">
-          <button @click="addField(input, contactInfo)"><i class="fas fa-plus"></i></button>
+          <button @click.prevent="addField(input, contactInfo)"><i class="fas fa-plus"></i></button>
           <button  v-show="contactInfo.length > 1"
             @click="removeField(index, contactInfo)"><i class="fas fa-trash"></i></button>
           </div>
@@ -101,6 +109,7 @@ export default {
         home_phone: 'required',
         address: 'required',
       },
+      errors: [],
       contactInfo: [{ propertyName: '' }],
       contactsStatic: {
         name: '',
@@ -142,12 +151,14 @@ export default {
       this.getContacts();
     },
     async submit() {
-      console.log('test');
-      this.contactsStatic.dynamicFields = this.contactInfo;
-      this.contactsStatic.color = `rgb(${Array(3).fill().map(() => this.getRandomNumber(0, 255))})`;
-      console.log(this.contactsStatic);
-      await contactsCollectionD.add(this.contactsStatic);
-      this.getContacts();
+      if (this.checkForm()) {
+        console.log('test');
+        this.contactsStatic.dynamicFields = this.contactInfo;
+        this.contactsStatic.color = `rgb(${Array(3).fill().map(() => this.getRandomNumber(0, 255))})`;
+        console.log(this.contactsStatic);
+        await contactsCollectionD.add(this.contactsStatic);
+        this.getContacts();
+      }
     },
     addField(value, contactInfo) {
       contactInfo.push({});
@@ -162,6 +173,24 @@ export default {
     },
     showAddContactForm() {
       this.showForm = !this.showForm;
+    },
+    checkForm() {
+      this.errors = [];
+
+      if (!this.contactsStatic.name) {
+        this.errors.push('Name required.');
+      }
+      if (!this.contactsStatic.lastName) {
+        this.errors.push('Last name required.');
+      }
+      if (!this.contactsStatic.tel) {
+        this.errors.push('Telephone number required.');
+      }
+      if (this.errors.length) {
+        return false;
+      }
+
+      return true;
     },
   },
 };
