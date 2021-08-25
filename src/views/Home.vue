@@ -117,7 +117,6 @@ export default {
         tel: '',
         color: '',
       },
-      // color: [],
       showForm: false,
     };
   },

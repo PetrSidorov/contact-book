@@ -1,12 +1,10 @@
 /* Import the Google Font 'Roboto' */
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,700);
 
-/* Hide scrollbars in Webkit browsers*/
 ::-webkit-scrollbar {
   display: none;
 }
 
-/* Dimensions and base styles for the containers and headers */
 body {
   background-color: #f9f9f9;
   font-family: 'Roboto', sans-serif;
@@ -38,10 +36,6 @@ body {
   justify-content: space-between;
   max-height: 65px;
 }
-
-
-/* Declarations that hide the header when a contact is selected */
-
 
 .app-headline {
   color: #5f5f5f;
@@ -127,27 +121,6 @@ body {
 }
 
 /* END Dimensions and base styles for the containers and headers */
-
-/* Declarations for when the header is set to be hidden */
-.hide-contacts .app-bar {
-  background-color: transparent;
-  box-shadow: 0 0 0 transparent;
-}
-
-.hide-contacts #menuToggle {
-  cursor: pointer;
-}
-
-.hide-contacts .app-headline {
-  opacity: 0;
-}
-
-.hide-contacts .app-bar-button {
-  color: #fff;
-  text-shadow: 1px 1px #c1c1c1;
-}
-/* END Declarations for when the header is set to be hidden */
-
 
 /* Contact table cell styles */
 .contact {
