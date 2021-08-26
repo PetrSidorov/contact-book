@@ -37,10 +37,12 @@
   <form
   v-show="showForm"
   class="interaction"
-  :validation-schema="schema"
   novalidate="true"
   :class="{ visible: smoothPopUp }">
     <div class="form-in">
+      <button
+      @click="showAddContactForm" class="close-btn">
+      <i class="fas fa-window-close"></i></button>
     <h3 class="center-text">Add contact</h3>
       <p v-if="errors.length">
             <b>Please correct the following error(s):</b>
@@ -73,7 +75,7 @@
           </div>
         </div>
         <div class="static-inputs-container">
-        <input v-model="contactsStatic.name"
+        <input @keyup.enter="submit" v-model="contactsStatic.name"
         class="input-field" type="text" placeholder="Name" name="name"/>
         <input v-model="contactsStatic.lastName" class="input-field" name="last_name"
         type="text" placeholder="Last name"/>
@@ -99,15 +101,6 @@ export default {
     return {
       contacts: [],
       contact: {},
-      schema: {
-        name: 'required|min:3|max:100',
-        last_name: 'required|min:3|max:100',
-        comment: 'required|min:3|max:100',
-        email: 'required|min:3|max:100|email',
-        mobile_phone: 'required',
-        home_phone: 'required',
-        address: 'required',
-      },
       errors: [],
       contactInfo: [{ propertyName: '' }],
       contactsStatic: {
@@ -151,12 +144,23 @@ export default {
     },
     async submit() {
       if (this.checkForm()) {
-        console.log('test');
+        for (let i = 0; i < this.contactInfo.length; i += 1) {
+          if ((!this.contactInfo[i].value) || (!this.contactInfo[i].propertyName)) {
+            console.log(this.contactInfo);
+            this.contactInfo.splice(i, 1);
+          }
+        }
         this.contactsStatic.dynamicFields = this.contactInfo;
         this.contactsStatic.color = `rgb(${Array(3).fill().map(() => this.getRandomNumber(0, 255))})`;
         console.log(this.contactsStatic);
         await contactsCollectionD.add(this.contactsStatic);
         this.getContacts();
+        this.contactsStatic.name = '';
+        this.contactsStatic.lastName = '';
+        this.contactsStatic.tel = '';
+        this.contactsStatic.color = '';
+        this.contactInfo = [{ propertyName: '' }];
+        this.showAddContactForm();
       }
     },
     addField(value, contactInfo) {

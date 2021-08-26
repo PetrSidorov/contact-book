@@ -50,12 +50,38 @@
             </td>
           </tr>
           </template>
-           <tr @click="edit"  id="edit" class="contact-info-item">
-            <td class="contact-info-icon"><i class="fas fa-edit"></i></td>
+          <template v-if="showNewInput">
+           <template addingValue v-for="(input, i) in newContactFields" :key="i">
+           <tr id="contactEmail" class="contact-info-item">
+            <td class="contact-info-icon"><i class="fa fa-info-circle"></i></td>
+            <td class="contact-info-detail">
+              <!-- <p v-if="!isEditing">{{ dynamicFields[i].propertyName }}:
+            {{ dynamicFields[i].value }}</p> -->
+            <!-- <template v-else> -->
+              <input  placeholder="Enter Property Name" v-model="input.propertyName" type="text"/>
+              <input placeholder="Enter Property Value" v-model="input.value" type="text"/>
+            </td>
+          </tr>
+          </template>
+          </template>
+           <tr id="edit" class="contact-info-item">
+            <td @click.stop="edit" class="contact-info-icon"><i class="fas fa-edit"></i></td>
             <td class="contact-info-detail cursor-pointer">
               <p v-if="!isEditing">Edit contact</p>
               <p @click="submitChanges" v-else>Save changes</p>
               </td>
+              <template v-if="isEditing">
+              <td class="contact-info-icon" @click.prevent="addField(input, newContactFields)">
+                <i class="fas fa-plus"></i></td>
+              <td class="contact-info-detail cursor-pointer">
+              <p>Add field</p>
+              </td>
+               <td class="contact-info-icon" @click="removeField(index, newContactFields)">
+                <i class="fas fa-window-close"></i></td>
+              <td class="contact-info-detail cursor-pointer">
+              <p>Delete field</p>
+              </td>
+              </template>
           </tr>
           <tr @click="togglePopUp"  id="edit" class="contact-info-item">
             <td class="contact-info-icon"><i class="fas fa-user-slash"></i></td>
@@ -101,6 +127,9 @@ export default {
       showDeletePopUp: false,
       smoothPopUp: false,
       deleted: false,
+      newContactFields: [{ propertyName: '' }],
+      showNewInput: 0,
+      lastFieldIndex: 0,
     };
   },
   computed: {
@@ -121,12 +150,14 @@ export default {
     }
     this.contact = docSnapshot.data();
     this.dynamicFields = this.contact.dynamicFields;
+    this.lastFieldIndex = this.dynamicFields.length - 1;
   },
   methods: {
     edit() {
       this.isEditing = !this.isEditing;
     },
     async submitChanges() {
+      console.log('submit test');
       const docRef = await contactsCollectionD.doc(this.$route.params.id);
       docRef.update(this.contact);
     },
@@ -142,6 +173,27 @@ export default {
       setTimeout(() => this.$router.push({
         name: 'home',
       }), 3000);
+    },
+    addField(value, newContactFields) {
+      if (this.showNewInput === 0) {
+        this.showNewInput += 1;
+        // eslint-disable-next-line no-useless-return
+        return;
+      }
+      newContactFields.push({});
+    },
+    async removeField(index, type) {
+      if (this.newContactFields.length > 0) {
+        type.splice(index, 1);
+      } else {
+        // console.log(this.contact.dynamicFields[this.lastFieldIndex]);
+        // const docRef = await contactsCollectionD.doc(this.$route.params.id);
+        // docRef.update({
+        //   dynamicFields: firebase.firestore.FieldValue.arrayRemove(this.lastFieldIndex),
+        // });
+        this.contact.dynamicFields.splice(this.lastFieldIndex, 1);
+        this.lastFieldIndex -= 1;
+      }
     },
   },
 };
