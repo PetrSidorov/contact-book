@@ -23,14 +23,12 @@
         <tbody>
           <tr class="contact" v-for="contact in contacts"
           :key="contact">
-          <router-link :to="{ name: 'contact', params: { id: contact.id } }">
+          <router-link class="contact-link" :to="{ name: 'contact', params: { id: contact.id } }">
             <td class="contact-image">
               <div v-bind:style="{ backgroundColor: contact.color}"></div>
             </td>
             <td class="contact-name">
-              <span class="first-name">{{ contact.name }}</span>
-              <span
-                class="last-name">{{ contact.last_name }}</span></td>
+              <span class="first-name">{{ contact.name }} {{ contact.lastName }}</span></td>
               </router-link>
           </tr>
         </tbody>
@@ -38,21 +36,22 @@
       <!-- END List of contacts -->
   <form
   v-show="showForm"
-  id="contact"
+  class="interaction"
   :validation-schema="schema"
-  novalidate="true">
+  novalidate="true"
+  :class="{ visible: smoothPopUp }">
     <div class="form-in">
-    <h3 class="center-text">Добавить контакт</h3>
-      <div v-for="(input, index) in contactInfo"
-         :key="`phoneInput-${index}`"
-          class="input-button-row"
-        >
-         <p v-if="errors.length">
+    <h3 class="center-text">Add contact</h3>
+      <p v-if="errors.length">
             <b>Please correct the following error(s):</b>
             <ul>
               <li v-for="error in errors" :key="error">{{ error }}</li>
             </ul>
         </p>
+      <div v-for="(input, index) in contactInfo"
+         :key="index"
+          class="input-button-row"
+        >
         <div class="small-inputs-container">
     <input v-model="input.propertyName"
                type="text"
@@ -75,9 +74,9 @@
         </div>
         <div class="static-inputs-container">
         <input v-model="contactsStatic.name"
-        class="input-field" type="text" placeholder="Имя" name="name"/>
+        class="input-field" type="text" placeholder="Name" name="name"/>
         <input v-model="contactsStatic.lastName" class="input-field" name="last_name"
-        type="text" placeholder="Фамилия"/>
+        type="text" placeholder="Last name"/>
         <input v-model="contactsStatic.tel" class="input-field" type="tel"
         name="mobile_phone" placeholder="Мобильный телефон"/>
       </div>
@@ -118,6 +117,7 @@ export default {
         color: '',
       },
       showForm: false,
+      smoothPopUp: false,
     };
   },
   async created() {
@@ -172,6 +172,8 @@ export default {
     },
     showAddContactForm() {
       this.showForm = !this.showForm;
+      // eslint-disable-next-line no-return-assign
+      setTimeout(() => this.smoothPopUp = !this.smoothPopUp, 200);
     },
     checkForm() {
       this.errors = [];
@@ -194,3 +196,10 @@ export default {
   },
 };
 </script>
+<style scoped>
+.visible {
+  opacity: 1;
+  -webkit-transform: translateY(0);
+  transform: translateY(0);
+}
+</style>

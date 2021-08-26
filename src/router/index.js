@@ -27,6 +27,12 @@ const router = createRouter({
   routes,
   linkExactActiveClass: 'text-yellow-500',
 });
+
+// router.beforeEach((to, from, next) => {
+//   const contactInfo = document.getElementsByClassName('contact-info');
+//   contactInfo.classList.add('page-ready');
+//   next();
+// });
 // router.beforeEach((to, from, next) => {
 //   if (!to.matched.some((record) => record.meta.requiresAuth)) {
 //     next();
